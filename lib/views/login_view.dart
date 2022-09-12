@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:developer' as devtools show log;
-
 import 'package:mynotes/constants/routes.dart';
 
 class LoginView extends StatefulWidget {
@@ -37,23 +35,13 @@ class _LoginViewState extends State<LoginView> {
       ),
       body: Column(
         children: [
-          TextFormField(
+          TextField(
             controller: _email,
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
               label: Text('Email address'),
-              // hintText: 'Enter your email address',
             ),
-            onSaved: (String? value) {
-              // This optional block of code can be used to run
-              // code when the user saves the form.
-            },
-            validator: (String? value) {
-              return (value != null && value.contains('@'))
-                  ? 'Do not use the @ char.'
-                  : null;
-            },
           ),
           TextField(
             controller: _password,
@@ -80,11 +68,14 @@ class _LoginViewState extends State<LoginView> {
                 );
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  devtools.log('No user found for that email.');
+                  await showErrorDialog(
+                      context, 'No user found for that email.', 'Log in error');
                 } else if (e.code == 'wrong-password') {
-                  devtools.log('Wrong password provided for that user.');
+                  await showErrorDialog(context,
+                      'Wrong password provided for that user.', 'Log in error');
                 } else {
-                  devtools.log(e.message.toString());
+                  await showErrorDialog(
+                      context, e.message.toString(), 'Log in error');
                 }
               }
             },
@@ -100,4 +91,24 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
+}
+
+Future<void> showErrorDialog(BuildContext context, String msg,
+    [String title = ""]) {
+  return showDialog(
+    context: context,
+    builder: ((context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(msg),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Ok')),
+        ],
+      );
+    }),
+  );
 }
