@@ -58,6 +58,9 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
+                if (email.isEmpty && password.isEmpty) {
+                  throw 'No login details entered.';
+                }
                 await FirebaseAuth.instance.signInWithEmailAndPassword(
                   email: email,
                   password: password,
@@ -77,6 +80,8 @@ class _LoginViewState extends State<LoginView> {
                   await showErrorDialog(
                       context, e.message.toString(), 'Log in error');
                 }
+              } catch (e) {
+                await showErrorDialog(context, e.toString(), 'Log in error');
               }
             },
             child: const Text('Login'),
