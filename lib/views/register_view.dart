@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -61,19 +62,31 @@ class _RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                if (email.isEmpty && password.isEmpty)
+                  throw "Incomplete. Enter registration details for all fields.";
+                // final userCredential =
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
                   email: email,
                   password: password,
                 );
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                Navigator.of(context).pushNamed(verifyEmailRoute);
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
-                  devtools.log('The password provided is too weak.');
+                  showErrorDialog(context, 'The password provided is too weak.',
+                      "Registration error:");
                 } else if (e.code == 'email-already-in-use') {
-                  devtools.log('The account already exists for that email.');
+                  showErrorDialog(
+                      context,
+                      'An account already exists for that email.',
+                      "Registration error:");
                 } else {
-                  devtools.log(e.message.toString());
+                  showErrorDialog(
+                      context, e.message.toString(), "Registration error:");
                 }
+              } catch (e) {
+                showErrorDialog(context, e.toString(), "Registration error:");
               }
             },
             child: const Text('Register'),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Future<void> showErrorDialog(BuildContext context, String msg,
-    [String title = ""]) {
+    [String title = "Error:"]) {
   return showDialog(
     context: context,
     builder: ((context) {
@@ -13,7 +13,7 @@ Future<void> showErrorDialog(BuildContext context, String msg,
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Ok')),
+              child: const Text('Dismiss')),
         ],
       );
     }),
