@@ -2,6 +2,8 @@ import 'package:mynotes/services/auth/auth_user.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
 import 'package:mynotes/services/auth/auth_provider.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:mynotes/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 
@@ -24,20 +26,13 @@ class FirebaseAuthProvider implements AuthProvider {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        // showErrorDialog(context, 'The password provided is too weak.',
-        //     "Registration error:");
         throw WeakPasswordAuthException();
       } else if (e.code == 'email-already-in-use') {
-        // showErrorDialog(context, 'An account already exists for that email.',
-        //     "Registration error:");
         throw EmailAlreadyInUseAuthException();
       } else if (e.code == 'invalid-email') {
-        // showErrorDialog(context, 'An account already exists for that email.',
-        //     "Registration error:");
-        throw AuthException();
-        // throw InvalidEmailException();
+        throw AuthException(e.message);
       } else {
-        throw AuthException();
+        throw AuthException(e.message);
       }
     } catch (e) {
       throw AuthException();
@@ -73,19 +68,13 @@ class FirebaseAuthProvider implements AuthProvider {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
-        // await showErrorDialog(
-        //     context, 'No user found for that email.', 'Log in error');
       } else if (e.code == 'wrong-password') {
         throw WrongPasswordAuthException();
-        // await showErrorDialog(
-        //     context, 'Wrong password provided for that user.', 'Log in error');
       } else {
         throw AuthException();
-        // await showErrorDialog(context, e.message.toString(), 'Log in error');
       }
     } catch (e) {
       throw AuthException();
-      // await showErrorDialog(context, e.toString(), 'Log in error');
     }
   }
 
@@ -107,5 +96,12 @@ class FirebaseAuthProvider implements AuthProvider {
     } else {
       throw UserNotLoggedInAuthException();
     }
+  }
+
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }

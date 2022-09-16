@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -62,36 +63,33 @@ class _LoginViewState extends State<LoginView> {
                 if (email.isEmpty && password.isEmpty) {
                   throw 'No login details entered.';
                 }
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await AuthService.firebase().logIn(
                   email: email,
                   password: password,
                 );
-                final user = FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
+                final user = AuthService.firebase().currentUser;
+                if (user?.isEmailVerified ?? false) {
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     notesRoute,
                     (route) => false,
                   );
                 } else {
-                  await user?.sendEmailVerification();
+                  await AuthService.firebase().sendVerificationEmail();
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     verifyEmailRoute,
                     (route) => false,
                   );
                 }
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'user-not-found') {
-                  await showErrorDialog(
-                      context, 'No user found for that email.', 'Log in error');
-                } else if (e.code == 'wrong-password') {
-                  await showErrorDialog(context,
-                      'Wrong password provided for that user.', 'Log in error');
-                } else {
-                  await showErrorDialog(
-                      context, e.message.toString(), 'Log in error');
-                }
+              } on UserNotFoundAuthException {
+                await showErrorDialog(
+                    context, 'No user found for that email.', 'Log in error');
+              } on WrongPasswordAuthException {
+                await showErrorDialog(context,
+                    'Wrong password provided for that user.', 'Log in error');
+              } on AuthException catch (e) {
+                await showErrorDialog(context, e.message, 'Log in error');
               } catch (e) {
-                await showErrorDialog(context, e.toString(), 'Log in error');
+                await showErrorDialog(context, 'Log in error');
               }
             },
             child: const Text('Login'),
