@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/enums/menu_action.dart';
 import 'package:mynotes/firebase_options.dart';
 import 'package:mynotes/views/login_view.dart';
 import 'package:mynotes/views/register_view.dart';
@@ -57,8 +58,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-enum MenuAction { logout }
 
 class NotesView extends StatefulWidget {
   const NotesView({Key? key}) : super(key: key);
