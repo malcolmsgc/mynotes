@@ -1,13 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart'
-    show getApplicationDocumentsDirectory;
+import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
+
+class DatabaseAlreadyOpenException implements Exception {}
+
+class UnableToGetDocumentsDirectory implements Exception {}
 
 class NotesService {
   Database? _db;
 
-  Future<void> open() async {}
+  Future<void> open() async {
+    if (_db != null) {
+      throw DatabaseAlreadyOpenException();
+    }
+    try {
+      final docsPath = await getApplicationDocumentsDirectory();
+      final dbPath = join(docsPath.path, dbName);
+      final db = await openDatabase(dbPath);
+      _db = db;
+
+      await db.execute(createUserTable);
+
+      await db.execute(createNoteTable);
+    } on MissingPlatformDirectoryException {
+      throw UnableToGetDocumentsDirectory();
+    }
+  }
 }
 
 @immutable
@@ -72,3 +91,20 @@ const emailColumn = 'email';
 const userIdColumn = 'user_id';
 const textColumn = 'text';
 const isSyncedWithCloudColumn = 'is_synced_with_cloud';
+const createUserTable = '''
+      CREATE TABLE IF NOT EXISTS "user" (
+        "id" INTEGER NOT NULL,
+        "email" TEXT NOT NULL UNIQUE,
+        PRIMARY KEY("id" AUTOINCREMENT)
+      );
+      ''';
+const createNoteTable = '''
+      CREATE TABLE IF NOT EXISTS "note" (
+        "id" INTEGER NOT NULL,
+        "user_id" INTEGER NOT NULL,
+        "text" TEXT,
+        "is_synced_with_cloud" INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY("id" AUTOINCREMENT),
+        FOREIGN KEY("user_id") REFERENCES "user"("id)
+      );
+      ''';
