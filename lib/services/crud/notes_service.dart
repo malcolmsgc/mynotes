@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
@@ -13,16 +14,21 @@ class NotesService {
 
 // Singleton constructor
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesService() => _shared;
 // End of singleton constructor
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
-  Future<DatabaseUser> getorCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
       return await getUser(email: email);
     } on UserNotFoundDBException {
@@ -73,11 +79,11 @@ class NotesService {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final dbUser = await getUser(email: owner.email);
-
     if (dbUser != owner) {
       throw UserNotFoundDBException();
     }
     const text = '';
+    log(db.toString());
     final noteId = await db.insert(noteTable, {
       userIdColumn: owner.id,
       textColumn: text,
@@ -122,7 +128,7 @@ class NotesService {
     return deleteCount;
   }
 
-  Future<DatabaseNote> updateNotes({
+  Future<DatabaseNote> updateNote({
     required DatabaseNote note,
     required String text,
   }) async {
@@ -135,10 +141,8 @@ class NotesService {
           textColumn: text,
           isSyncedWithCloudColumn: 0,
         },
-        // {
-        //   where: 'id = ?',
-        //   whereArgs: [note.id]
-        // }
+        where: 'id = ?',
+        whereArgs: [note.id],
       );
       if (updatesCount == 0) {
         throw NoteNotUpdatedException;
@@ -331,6 +335,6 @@ const createNoteTable = '''
         "text" TEXT,
         "is_synced_with_cloud" INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY("id" AUTOINCREMENT),
-        FOREIGN KEY("user_id") REFERENCES "user"("id)
+        FOREIGN KEY("user_id") REFERENCES "user"("id")
       );
       ''';
