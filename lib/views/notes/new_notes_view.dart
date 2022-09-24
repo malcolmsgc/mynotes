@@ -98,16 +98,35 @@ class _NewNoteViewState extends State<NewNoteView> {
                 _note = snapshot.data as DatabaseNote;
                 // print(_note);
                 _setupTextControllerListener();
-                return TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'Start typing your note',
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  child: TextField(
+                    controller: _textController,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      hintText: 'Start typing your note',
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.transparent,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.transparent,
+                        ),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.transparent,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               } else {
                 log(snapshot.error.toString());
+                throw Exception;
               }
             default:
               return const CircularProgressIndicator();
