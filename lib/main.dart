@@ -13,7 +13,7 @@ void main() {
   runApp(MaterialApp(
     title: 'My Notes',
     theme: ThemeData(
-      primarySwatch: Colors.blueGrey,
+      primarySwatch: Colors.pink,
     ),
     home: const HomeScreen(),
     routes: {
