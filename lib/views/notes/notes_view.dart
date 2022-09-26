@@ -62,9 +62,34 @@ class _NotesViewState extends State<NotesView> {
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
-                      return const Text('Waiting connection state');
                     case ConnectionState.active:
-                      return const Text('Active connection state');
+                      if (snapshot.hasData) {
+                        final allNotes = snapshot.data as List<DatabaseNote>;
+                        return ListView.builder(
+                            itemCount: allNotes.length,
+                            itemBuilder: ((context, index) {
+                              final note = allNotes[index];
+                              return ListTile(
+                                title: Text(
+                                  note.text,
+                                  maxLines: 1,
+                                  softWrap: true,
+                                  overflow: TextOverflow.fade,
+                                ),
+                                tileColor: Color.fromARGB(255, 247, 223, 242),
+                              );
+                            }));
+                      } else {
+                        return Column(children: [
+                          const Text('You have no notes'),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(newNoteRoute);
+                            },
+                            child: const Text('Add note'),
+                          )
+                        ]);
+                      }
                     default:
                       return const CircularProgressIndicator();
                   }
