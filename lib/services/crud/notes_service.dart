@@ -119,7 +119,7 @@ class NotesService {
     }
   }
 
-  Future<int> deleteAllNotes({required int id}) async {
+  Future<int> deleteAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final deleteCount = await db.delete(noteTable);
