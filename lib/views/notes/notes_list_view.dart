@@ -29,32 +29,37 @@ class NotesListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: notes.length,
-        itemBuilder: ((context, index) {
-          final note = notes[index];
-          return dividedTile(
-              context,
-              ListTile(
-                title: Text(
-                  note.text,
-                  maxLines: 1,
-                  softWrap: true,
-                  overflow: TextOverflow.fade,
-                ),
-                trailing: IconButton(
-                  onPressed: () async {
-                    final shouldDelete = await showDeleteDialog(context);
-                    if (shouldDelete) {
-                      onDeleteNote(note);
-                    }
-                  },
-                  icon: Icon(Icons.delete),
-                  color: Colors.pink,
-                ),
-                tileColor: Color.fromARGB(255, 247, 223, 242),
-              ),
-              Colors.white);
-        }));
+    return ListView.separated(
+      itemCount: notes.length,
+      itemBuilder: ((context, index) {
+        final note = notes[index];
+        return ListTile(
+          title: Text(
+            note.text,
+            maxLines: 1,
+            softWrap: true,
+            overflow: TextOverflow.fade,
+          ),
+          trailing: IconButton(
+            onPressed: () async {
+              final shouldDelete = await showDeleteDialog(context);
+              if (shouldDelete) {
+                onDeleteNote(note);
+              }
+            },
+            icon: const Icon(Icons.delete),
+            color: Colors.pink,
+          ),
+          tileColor: const Color.fromARGB(255, 247, 223, 242),
+        );
+      }),
+      separatorBuilder: (context, index) => const Divider(
+        indent: 0,
+        endIndent: 0,
+        height: 5,
+        thickness: 1,
+        color: Colors.blue,
+      ),
+    );
   }
 }
