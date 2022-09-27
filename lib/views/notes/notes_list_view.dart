@@ -28,7 +28,7 @@ class NotesListView extends StatelessWidget {
             note.text,
             maxLines: 1,
             softWrap: true,
-            overflow: TextOverflow.fade,
+            overflow: TextOverflow.ellipsis,
           ),
           trailing: IconButton(
             onPressed: () async {
