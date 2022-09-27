@@ -8,14 +8,14 @@ import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class WriteNoteView extends StatefulWidget {
+  const WriteNoteView({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<WriteNoteView> createState() => _WriteNoteViewState();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
+class _WriteNoteViewState extends State<WriteNoteView> {
   DatabaseNote? _note;
   late final NotesService _notesService;
   late final TextEditingController _textController;
