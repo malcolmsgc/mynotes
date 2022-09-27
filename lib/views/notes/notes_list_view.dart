@@ -4,28 +4,18 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
 import 'package:mynotes/utilities/dialogs/delete_dialog.dart';
 
-typedef DeleteNoteCallback = void Function(DatabaseNote note);
+typedef NoteCallback = void Function(DatabaseNote note);
 
 class NotesListView extends StatelessWidget {
   final List<DatabaseNote> notes;
-  final DeleteNoteCallback onDeleteNote;
+  final NoteCallback onDeleteNote;
+  final NoteCallback onTap;
   const NotesListView({
     Key? key,
     required this.notes,
     required this.onDeleteNote,
+    required this.onTap,
   }) : super(key: key);
-
-  Widget dividedTile(BuildContext context, Widget tile, Color color) {
-    return DecoratedBox(
-      position: DecorationPosition.foreground,
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: Divider.createBorderSide(context, color: color),
-        ),
-      ),
-      child: tile,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +41,9 @@ class NotesListView extends StatelessWidget {
             color: Colors.pink,
           ),
           tileColor: const Color.fromARGB(255, 247, 223, 242),
+          onTap: () {
+            onTap(note);
+          },
         );
       }),
       separatorBuilder: (context, index) => const Divider(
@@ -58,7 +51,7 @@ class NotesListView extends StatelessWidget {
         endIndent: 0,
         height: 5,
         thickness: 1,
-        color: Colors.blue,
+        color: Colors.purple,
       ),
     );
   }

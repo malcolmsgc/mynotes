@@ -30,7 +30,7 @@ class _NotesViewState extends State<NotesView> {
       appBar: AppBar(title: const Text('Notes'), actions: [
         IconButton(
             onPressed: (() {
-              Navigator.of(context).pushNamed(newNoteRoute);
+              Navigator.of(context).pushNamed(writeNoteRoute);
             }),
             icon: const Icon(Icons.add)),
         PopupMenuButton<MenuAction>(
@@ -71,13 +71,17 @@ class _NotesViewState extends State<NotesView> {
                           onDeleteNote: (note) async {
                             await _notesService.deleteNote(id: note.id);
                           },
+                          onTap: (note) {
+                            Navigator.of(context)
+                                .pushNamed(writeNoteRoute, arguments: note);
+                          },
                         );
                       } else {
                         return Column(children: [
                           const Text('You have no notes'),
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed(newNoteRoute);
+                              Navigator.of(context).pushNamed(writeNoteRoute);
                             },
                             child: const Text('Add note'),
                           )

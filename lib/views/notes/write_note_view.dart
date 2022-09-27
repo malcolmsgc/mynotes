@@ -1,12 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
-import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
+import 'package:mynotes/utilities/generics/get_arguments.dart';
 
 class WriteNoteView extends StatefulWidget {
   const WriteNoteView({super.key});
@@ -40,7 +38,13 @@ class _WriteNoteViewState extends State<WriteNoteView> {
     _textController.addListener(_textControllerListener);
   }
 
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createOrGetNote(BuildContext context) async {
+    final widgetNote = context.getArgument<DatabaseNote>();
+    if (widgetNote != null) {
+      _note = widgetNote;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
@@ -50,7 +54,9 @@ class _WriteNoteViewState extends State<WriteNoteView> {
         final email = currentUser.email;
         if (email != null) {
           final owner = await _notesService.getUser(email: email);
-          return await _notesService.createNote(owner: owner);
+          final newNote = await _notesService.createNote(owner: owner);
+          _note = newNote;
+          return newNote;
         } else {
           throw UserNotFoundAuthException();
         }
@@ -90,13 +96,11 @@ class _WriteNoteViewState extends State<WriteNoteView> {
         title: const Text('New note'),
       ),
       body: FutureBuilder(
-        future: createNewNote(),
+        future: createOrGetNote(context),
         builder: ((context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               if (!snapshot.hasError) {
-                _note = snapshot.data as DatabaseNote;
-                // print(_note);
                 _setupTextControllerListener();
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
