@@ -66,16 +66,28 @@ class _NotesViewState extends State<NotesView> {
                     case ConnectionState.active:
                       if (snapshot.hasData) {
                         final allNotes = snapshot.data as List<DatabaseNote>;
-                        return NotesListView(
-                          notes: allNotes,
-                          onDeleteNote: (note) async {
-                            await _notesService.deleteNote(id: note.id);
-                          },
-                          onTap: (note) {
-                            Navigator.of(context)
-                                .pushNamed(writeNoteRoute, arguments: note);
-                          },
-                        );
+                        if (allNotes.isNotEmpty) {
+                          return NotesListView(
+                            notes: allNotes,
+                            onDeleteNote: (note) async {
+                              await _notesService.deleteNote(id: note.id);
+                            },
+                            onTap: (note) {
+                              Navigator.of(context)
+                                  .pushNamed(writeNoteRoute, arguments: note);
+                            },
+                          );
+                        } else {
+                          return Column(children: [
+                            const Text('You have no notes'),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(writeNoteRoute);
+                              },
+                              child: const Text('Add note'),
+                            )
+                          ]);
+                        }
                       } else {
                         return Column(children: [
                           const Text('You have no notes'),
@@ -88,13 +100,13 @@ class _NotesViewState extends State<NotesView> {
                         ]);
                       }
                     default:
-                      return const CircularProgressIndicator();
+                      return const Center(child: CircularProgressIndicator());
                   }
                 },
                 stream: _notesService.allNotes,
               );
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         }),
         future: _notesService.getOrCreateUser(email: userEmail),
