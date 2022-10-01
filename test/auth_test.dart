@@ -31,7 +31,7 @@ void main() {
         await provider.initialize();
         expect(provider.isInitialized, true);
       }),
-      timeout: const Timeout(const Duration(seconds: 2)),
+      timeout: const Timeout(Duration(seconds: 2)),
     );
 
     test('Create user should delegate to logIn func', (() async {
@@ -104,7 +104,6 @@ class MockAuthProvider implements AuthProvider {
   @override
   Future<void> initialize() async {
     await Future.delayed(const Duration(seconds: 1));
-    // TODO: implement initialize
     _isInitialized = true;
   }
 
@@ -116,7 +115,11 @@ class MockAuthProvider implements AuthProvider {
     if (!isInitialized) throw NotInitializedException();
     if (email == 'unknown@email.com') throw UserNotFoundAuthException();
     if (password == 'wrong-password') throw WrongPasswordAuthException();
-    AuthUser user = AuthUser(email: email, isEmailVerified: false);
+    AuthUser user = AuthUser(
+      id: '007',
+      email: email,
+      isEmailVerified: false,
+    );
     _user = user;
     return Future.value(user);
   }
@@ -134,7 +137,11 @@ class MockAuthProvider implements AuthProvider {
     if (!isInitialized) throw NotInitializedException();
     final user = _user;
     if (user == null) throw UserNotFoundAuthException();
-    AuthUser newUser = AuthUser(email: user.email, isEmailVerified: true);
+    AuthUser newUser = AuthUser(
+      id: '007',
+      email: user.email,
+      isEmailVerified: true,
+    );
     _user = newUser;
   }
 }
